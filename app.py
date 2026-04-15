@@ -35,7 +35,7 @@ with col1:
 # -----------------------------
 @st.cache_data(ttl=3600)
 def load_latest_rates():
-    url = "https://v6.exchangerate-api.com/v6/dff927e21aa1a64f10901337/latest/USD"
+    url = "https://open.er-api.com/v6/latest/USD"
     res = requests.get(url, timeout=10)
     return res.json()
 
