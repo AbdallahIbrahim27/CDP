@@ -12,7 +12,7 @@ st.set_page_config(
     layout="wide"
 )
 
-st.title("💱 Currency Data Pipeline Dashboard")
+st.title("💱 Real-Time Currency Intelligence System")
 st.markdown("Live exchange rates with Refresh feature ⟳")
 
 # -----------------------------
