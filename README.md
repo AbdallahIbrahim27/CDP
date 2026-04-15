@@ -38,14 +38,25 @@ interactive **Streamlit dashboard**.
 ``` bash
 Currency-Intelligence-System/
 │
-├── app.py                  # Streamlit dashboard
-├── requirements.txt        # Dependencies
-├── src/
-│   ├── fetch_data.py       # Data extraction (API layer)
-│   ├── pipeline.py         # ETL processing logic
-│   └── utils.py            # Helper functions
+├── app.py                      # Streamlit dashboard
+├── requirements.txt            # Python dependencies
+├── .env.example                # Environment variables template
+├── .gitignore                  # Git ignored files
+├── Dockerfile                  # Docker build configuration
+├── README.md                   # Project documentation
 │
-└── data/                   # Cached datasets (optional)
+├── data/
+│   └── currency_data.csv       # Stored currency dataset
+│
+├── src/                        # ETL Pipeline
+│   ├── extract.py              # Data extraction (API layer)
+│   ├── transform.py            # Data cleaning & transformation
+│   └── load.py                 # Data storage / output
+│
+├── docker/
+│   └── docker-compose.yaml     # Container orchestration
+│
+└── venv/                       # Virtual environment (ignored)
 ```
 
 ------------------------------------------------------------------------
