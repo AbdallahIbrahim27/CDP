@@ -8,32 +8,48 @@ from datetime import datetime
 # Page Config
 # -----------------------------
 st.set_page_config(
-    page_title="Currency Data Pipeline Dashboard",
+    page_title="Currency Dashboard",
     layout="wide"
 )
 
 st.title("💱 Currency Data Pipeline Dashboard")
-st.markdown("Live exchange rates with selectable currencies")
+st.markdown("Live exchange rates with Refresh feature ⟳")
 
 # -----------------------------
-# Safe API Loader
+# SESSION STATE (Refresh Control)
+# -----------------------------
+if "refresh" not in st.session_state:
+    st.session_state.refresh = True
+
+# زرار الريفريش
+col1, col2 = st.columns([1, 5])
+
+with col1:
+    if st.button("⟳ Refresh Data"):
+        st.session_state.refresh = True
+        st.cache_data.clear()
+        st.rerun()
+
+# -----------------------------
+# API Loader
 # -----------------------------
 @st.cache_data(ttl=3600)
 def load_latest_rates():
-    try:
-        url = "https://open.er-api.com/v6/latest/USD"
-        res = requests.get(url, timeout=10)
-        return res.json()
-    except Exception as e:
-        return {"error": str(e)}
+    url = "https://open.er-api.com/v6/latest/USD"
+    res = requests.get(url, timeout=10)
+    return res.json()
 
+# لو refresh true نعمل تحميل جديد
 data = load_latest_rates()
 
+# reset refresh flag
+st.session_state.refresh = False
+
 # -----------------------------
-# Error Handling (IMPORTANT FIX)
+# Error Handling
 # -----------------------------
 if "rates" not in data:
-    st.error("❌ Failed to load currency data from API")
+    st.error("❌ Failed to load data from API")
     st.json(data)
     st.stop()
 
@@ -43,22 +59,21 @@ base = data.get("base_code", "USD")
 df = pd.DataFrame(list(rates.items()), columns=["Currency", "Rate"])
 
 # -----------------------------
-# Sidebar - Currency Filter
+# Sidebar Filters
 # -----------------------------
 st.sidebar.header("⚙️ Settings")
 
 selected_currencies = st.sidebar.multiselect(
-    "Select currencies to display",
+    "Select currencies",
     df["Currency"].tolist(),
-    default=["EUR", "GBP", "SAR", "AED", "KWD", "OMR","JOD","EGP"]
+    default=["EUR", "GBP", "SAR", "AED", "JPY", "EGP"]
 )
 
-# Apply filter safely
 if selected_currencies:
     df = df[df["Currency"].isin(selected_currencies)]
 
 # -----------------------------
-# Sidebar - Converter
+# Converter
 # -----------------------------
 st.sidebar.subheader("🔄 Converter")
 
@@ -69,22 +84,19 @@ target_currency = st.sidebar.selectbox(
 
 amount = st.sidebar.number_input("Amount in USD", value=1.0, min_value=0.0)
 
-# -----------------------------
-# Converter Result
-# -----------------------------
 st.subheader("🔄 Currency Converter")
 
 rate = df[df["Currency"] == target_currency]["Rate"].values[0]
 converted = amount * rate
 
-col1, col2, col3 = st.columns(3)
+c1, c2, c3 = st.columns(3)
 
-col1.metric("From", f"{amount} USD")
-col2.metric("To", target_currency)
-col3.metric("Result", f"{converted:.2f}")
+c1.metric("From", f"{amount} USD")
+c2.metric("To", target_currency)
+c3.metric("Result", f"{converted:.2f}")
 
 # -----------------------------
-# Data Table
+# Table
 # -----------------------------
 st.subheader("📊 Exchange Rates")
 
